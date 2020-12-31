@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
+  <Tracking>
+    <ImageTarget name="marker_seal" size="0.141100 0.141100" />
+    <ImageTarget name="marker_penguin" size="0.141100 0.141100" />
+    <ImageTarget name="marker_fish" size="0.141100 0.141100" />
+  </Tracking>
+</QCARConfig>
