@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RaycastProvider
 {
-    public static void CheckRaycastWithTouchables(int touchablesLayer) {
+    public static Transform CheckRaycastWithTouchables(int touchablesLayer) {
         
         int layerMask = touchablesLayer; 
 
@@ -16,6 +16,7 @@ public class RaycastProvider
         if (Physics.Raycast(ray, out hit, 50f, layerMask))
         {
             hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("touch");
+            return hit.collider.gameObject.GetComponentInParent<Animator>().transform;
         }
 #else
 
@@ -30,9 +31,11 @@ public class RaycastProvider
                 if (Physics.Raycast(ray, out hit, 50f, layerMask))
                 {
                     hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("touch");
+                    return hit.collider.gameObject.GetComponentInParent<Animator>().transform;
                 }
             }
         }
 #endif
+        return null;
     }
 }
