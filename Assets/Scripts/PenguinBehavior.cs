@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class PenguinBehavior : MonoBehaviour
 {
     public Transform statsUI;
     private Renderer renderer;
-    private float hunger;
+    private float hunger = 100f, happiness = 100f, higiene = 100f;
 
     void Start()
     {
@@ -15,11 +16,20 @@ public class PenguinBehavior : MonoBehaviour
 
     void Update()
     {
-        if (renderer.isVisible && statsUI.gameObject.activeSelf) {
+        if (statsUI.gameObject.activeSelf && renderer.isVisible) {
             updateUIPosition();
             GameSession.current.washToggle.gameObject.SetActive(true);
         } else GameSession.current.washToggle.gameObject.SetActive(false);
+        
+    }
 
+    public void initialize(float hunger0, float happiness0, float higiene0)
+    {
+        hunger = hunger0;
+        happiness = happiness0;
+        higiene = higiene0;
+
+        enableUI();
     }
 
     public void enableUI() {
@@ -45,6 +55,17 @@ public class PenguinBehavior : MonoBehaviour
     }
 
     public void updateState() {
+        hunger -= GameSession.current.hungerDecayingSpeed * Time.deltaTime;
+        statsUI.Find("HungerBar").Find("HungerFillBar").GetComponent<Image>().fillAmount = hunger / GameSession.current.maxStatValue;
+
+        happiness -= GameSession.current.happinessDecayingSpeed * Time.deltaTime;
+        statsUI.Find("HappinessBar").Find("HappinessFillBar").GetComponent<Image>().fillAmount = happiness / GameSession.current.maxStatValue;
+
+        higiene -= GameSession.current.higieneDecayingSpeed * Time.deltaTime;
+        statsUI.Find("HigieneBar").Find("HigieneFillBar").GetComponent<Image>().fillAmount = higiene / GameSession.current.maxStatValue;
+
         return;
     }
+
+   
 }

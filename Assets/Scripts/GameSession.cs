@@ -8,10 +8,14 @@ public class GameSession : MonoBehaviour
     [HideInInspector]
     public static GameSession current;
     private PenguinBehavior penguin;
-    public int initialHunger = 100;
-    public int initialHappiness = 100;
-    public float hungerDecayingSpeed = 2f;
-    public float happinessDecayingSpeed = 2f;
+    public float actionTriggerDistance = .5f;
+    public float initialHunger = 50;
+    public float initialHappiness = 30;
+    public float initialHigiene = 30;
+    public float maxStatValue = 100; 
+    public float hungerDecayingSpeed = 1f;
+    public float happinessDecayingSpeed = .5f;
+    public float higieneDecayingSpeed = .5f;
     public LayerMask touchablesLayer;
 
     public Transform cleaningObject;
@@ -33,7 +37,7 @@ public class GameSession : MonoBehaviour
             if (!penguin && touchedGOTransform) {
                 penguin = touchedGOTransform.GetComponent<PenguinBehavior>();   // if there is no such component, null will be set
                 if (penguin) {
-                    penguin.enableUI();
+                    penguin.initialize(initialHunger, initialHappiness, initialHigiene);
                     washToggle.gameObject.SetActive(true);
                 }
             }
@@ -43,6 +47,7 @@ public class GameSession : MonoBehaviour
     }
 
     public void SpawnSponge() {
+        print("wash toggle is " + washToggle.isOn);
         if (washToggle.isOn) {
             _cleaningObject.position = penguin.transform.position + 
                     penguin.transform.forward * penguin.GetComponent<Collider>().bounds.extents.z +
