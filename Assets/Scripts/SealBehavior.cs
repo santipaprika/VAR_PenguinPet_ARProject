@@ -24,7 +24,7 @@ public class SealBehavior : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (GameSession.current.penguin && !GameSession.current.penguinBusy)
-            if (other.gameObject == GameSession.current.penguin.gameObject)
+            if (other.GetComponentInParent<PenguinBehavior>() == GameSession.current.penguin)
             {
                 StopAllCoroutines();
                 penguinInColliderActive = true;
@@ -38,14 +38,14 @@ public class SealBehavior : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         if (GameSession.current.penguin)
-            if (other.gameObject == GameSession.current.penguin.gameObject && !penguinInColliderActive)
+            if (other.GetComponentInParent<PenguinBehavior>() == GameSession.current.penguin && !penguinInColliderActive)
                 OnTriggerEnter(other);
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (GameSession.current.penguin)
-            if (other.gameObject == GameSession.current.penguin.gameObject)
+            if (other.GetComponentInParent<PenguinBehavior>() == GameSession.current.penguin)
             {
                 StopAllCoroutines();
                 penguinInColliderActive = false;
@@ -63,7 +63,7 @@ public class SealBehavior : MonoBehaviour
 
         Transform penguinTransform = GameSession.current.penguin.transform;
         sealTransform.LookAt(penguinTransform);
-        float penguinWidth = penguinTransform.GetComponent<Collider>().bounds.extents.x * 2;
+        float penguinWidth = penguinTransform.GetComponentInChildren<Collider>().bounds.extents.x * 2;
 
         Vector3 initialPenguinFwd = penguinTransform.forward;
 
@@ -96,8 +96,18 @@ public class SealBehavior : MonoBehaviour
         while (Vector3.Distance(sealTransform.position, transform.position) > 0.01)
         {
             sealTransform.position = Vector3.Lerp(initialPos, transform.position, lerpParam);
-            penguinTransform.forward = Vector3.Lerp(initialPenguinFwd, -GameSession.current.penguin.transform.parent.forward, 2 * lerpParam);
+            penguinTransform.forward = Vector3.Lerp(initialPenguinFwd, -penguinTransform.parent.forward, 2 * lerpParam);
             lerpParam += 1f * Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+
+
+        lerpParam = 0;
+        Vector3 initialSealFwd = sealTransform.forward;
+        while (lerpParam <= 1f)
+        {
+            sealTransform.forward = Vector3.Lerp(initialSealFwd, -transform.forward, lerpParam);
+            lerpParam += 2f * Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
     }
