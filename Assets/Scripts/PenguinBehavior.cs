@@ -7,7 +7,8 @@ public class PenguinBehavior : MonoBehaviour
 {
     public Transform statsUI;
     private Renderer renderer;
-    private float hunger = 100f, happiness = 100f, higiene = 100f;
+    [HideInInspector]
+    public float hunger = 100f, happiness = 100f, higiene = 100f;
 
     void Start()
     {

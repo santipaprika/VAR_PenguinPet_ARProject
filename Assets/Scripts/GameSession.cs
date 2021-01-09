@@ -7,7 +7,10 @@ public class GameSession : MonoBehaviour
 {
     [HideInInspector]
     public static GameSession current;
-    private PenguinBehavior penguin;
+    [HideInInspector]
+    public PenguinBehavior penguin;
+    [HideInInspector]
+    public bool penguinBusy = false;
     public float actionTriggerDistance = .5f;
     public float initialHunger = 50;
     public float initialHappiness = 30;
@@ -47,13 +50,11 @@ public class GameSession : MonoBehaviour
     }
 
     public void SpawnSponge() {
-        print("wash toggle is " + washToggle.isOn);
         if (washToggle.isOn) {
             _cleaningObject.position = penguin.transform.position + 
                     penguin.transform.forward * penguin.GetComponent<Collider>().bounds.extents.z +
                     penguin.transform.up * penguin.GetComponent<Collider>().bounds.extents.y;
-        } 
-        print(_cleaningObject.name);
+        }
         _cleaningObject.gameObject.SetActive(washToggle.isOn);
     }
 }
