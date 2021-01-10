@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class GameSession : MonoBehaviour
@@ -25,6 +26,13 @@ public class GameSession : MonoBehaviour
     public Transform cleaningObject;
     public Toggle washToggle;
     private Transform _cleaningObject;
+
+    [HideInInspector]
+    public bool penguinTracked = false;
+    [HideInInspector]
+    public bool sealTracked = false;
+
+    public Transform gameOverUI;
 
     void Awake()
     {
@@ -66,7 +74,6 @@ public class GameSession : MonoBehaviour
         if ((Input.touchCount > 0 || Input.GetMouseButtonUp(0)) && !penguinBusy) {
             Transform touchedGOTransform = RaycastProvider.GetRaycastedTouchable(touchablesLayer.value);
             if (touchedGOTransform) {
-                print("touching something");
                 if (touchedGOTransform.GetComponentInParent<Fish>())
                     touchedGOTransform.GetComponentInParent<Fish>().Grab();
                 else
@@ -92,13 +99,17 @@ public class GameSession : MonoBehaviour
     }
 
     public void SpawnSponge() {
-        if (washToggle.isOn) {
-            _cleaningObject.position = penguin.transform.position + 
+        if (washToggle.isOn)
+        {
+            _cleaningObject.position = penguin.transform.position +
                     penguin.transform.forward * penguin.GetComponentInChildren<Collider>().bounds.extents.z +
                     penguin.transform.up * penguin.GetComponentInChildren<Collider>().bounds.extents.y;
         }
+        else
+            penguin.audioSource.Stop();
         _cleaningObject.gameObject.SetActive(washToggle.isOn);
         penguinBusy = washToggle.isOn;
+        
     }
 
     public void SetAllFishesKinematic(bool kinematic)
@@ -107,5 +118,25 @@ public class GameSession : MonoBehaviour
         {
             fish.GetComponent<Rigidbody>().isKinematic = kinematic;
         }
+    }
+
+    public void SetSealTrackedState(bool tracked)
+    {
+        sealTracked = tracked;
+    }
+
+    public void SetPenguinTrackedState(bool tracked)
+    {
+        penguinTracked = tracked;
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void Exit()
+    {
+        Application.Quit();
     }
 }

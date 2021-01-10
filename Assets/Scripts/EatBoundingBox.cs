@@ -24,14 +24,12 @@ public class EatBoundingBox : MonoBehaviour
         if (!fish) return;
 
         if (eaten)
-        {
-            penguin.hunger += fish.hungerContribution;
             StartCoroutine(HoldFish(fish));
-        }
     }
 
     IEnumerator HoldFish(Fish fish)
     {
+        penguin.GetComponentInParent<Animator>().SetTrigger("eat");
         eaten = false;
         fish.isGrabbed = false;
         Vector3 initialFishPosition = fish.transform.position;
@@ -41,12 +39,15 @@ public class EatBoundingBox : MonoBehaviour
         while(lerpParam <= 1)
         {
             fish.transform.position = Vector3.Lerp(initialFishPosition, destFishPosition, lerpParam);
-            lerpParam += Time.fixedDeltaTime;
+            lerpParam += 2.5f * Time.fixedDeltaTime;
 
             yield return new WaitForFixedUpdate();
         }
 
         Destroy(fish.gameObject);
+        penguin.GetComponentInChildren<AudioSource>().PlayOneShot(penguin.eatAudioClip);
+        penguin.hunger += fish.hungerContribution;
         eaten = true;
+        GameSession.current.penguinBusy = false;
     }
 }

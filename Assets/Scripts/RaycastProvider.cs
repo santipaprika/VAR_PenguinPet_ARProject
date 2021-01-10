@@ -14,9 +14,7 @@ public class RaycastProvider
         Ray ray = Camera.main.ScreenPointToRay(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 50f, layerMask))
-        {
             return hit.collider.GetComponentInParent<Animator>() ? hit.collider.GetComponentInParent<Animator>().transform : hit.collider.transform;
-        }
 #else
 
         foreach(Touch touch in Input.touches)
@@ -28,9 +26,7 @@ public class RaycastProvider
                 RaycastHit hit;
                 Debug.Log(layerMask);
                 if (Physics.Raycast(ray, out hit, 50f, layerMask))
-                {
-                    return hit.collider.GetComponentInParent<Animator>().transform;
-                }
+                    return hit.collider.GetComponentInParent<Animator>() ? hit.collider.GetComponentInParent<Animator>().transform : hit.collider.transform;
             }
         }
 #endif

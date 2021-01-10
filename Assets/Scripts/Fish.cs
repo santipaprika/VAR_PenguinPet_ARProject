@@ -22,13 +22,9 @@ public class Fish : MonoBehaviour
                 Grab();
 #else
             if (Input.touchCount > 0)
-                if (Input.GetTouch(0).phase == TouchPhase.Ended && Input.GetMouseButtonUp(0))
+                if (Input.GetTouch(0).phase == TouchPhase.Ended)
                     Grab();
 #endif
-
-            
-
-            
 
             RaycastHit hit;
             if (RaycastProvider.GetRaycastHit(eatBoundingBox.raycastTargetLayer, out hit))

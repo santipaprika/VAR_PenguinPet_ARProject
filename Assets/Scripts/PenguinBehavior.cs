@@ -19,7 +19,6 @@ public class PenguinBehavior : MonoBehaviour
     public AudioClip eatAudioClip;
     public AudioClip sealAudioClip;
 
-
     void Start()
     {
         renderer = GetComponentInChildren<Renderer>();
@@ -30,15 +29,16 @@ public class PenguinBehavior : MonoBehaviour
     {
         if (statsUI.gameObject.activeSelf && renderer.isVisible) {
             updateUIPosition();
-            if (!GameSession.current.penguinBusy)
-                GameSession.current.washToggle.gameObject.SetActive(true);
+            if (hunger <= 0 || happiness <= 0 || higiene <= 0)
+            {
+                GetComponentInParent<Animator>().SetBool("dead", true);
+                showGameOver();
+            }
+            else
+                GameSession.current.washToggle.gameObject.SetActive(!GameSession.current.penguinBusy || GameSession.current.washToggle.isOn);
         }
         else {
-            if (GameSession.current.washToggle.isOn)
-            {
-                audioSource.Stop();
-                GameSession.current.washToggle.isOn = false;
-            }
+            GameSession.current.washToggle.isOn = false;
             GameSession.current.washToggle.gameObject.SetActive(false);
         }
     }
@@ -91,4 +91,9 @@ public class PenguinBehavior : MonoBehaviour
         return;
     }
 
+    public void showGameOver()
+    {
+        GameSession.current.washToggle.gameObject.SetActive(false);
+        GameSession.current.gameOverUI.gameObject.SetActive(true);
+    }
 }

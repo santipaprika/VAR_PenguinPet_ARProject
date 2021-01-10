@@ -5,57 +5,49 @@ using UnityEngine;
 public class SealBehavior : MonoBehaviour
 {
     public float happinessIncreaseSpeed = 2f;
+    public float max_distance = 0.2f;
+    private bool interacting = false;
 
-    private bool penguinInColliderActive = false;
-
-    private Coroutine addHappiness;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
+    private PenguinBehavior penguin;
 
     // Update is called once per frame
     void Update()
     {
+        if (!penguin)
+        {
+            penguin = GameSession.current.penguin;
+            return;
+        }
 
-    }
+        transform.position = transform.parent.position;
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (GameSession.current.penguin && !GameSession.current.penguinBusy)
-            if (other.GetComponentInParent<PenguinBehavior>() == GameSession.current.penguin)
+        if (GameSession.current.penguinBusy && !interacting) return;
+
+        if (!interacting)
+        {
+            if (Vector3.Distance(transform.position, penguin.transform.position) <= max_distance && GameSession.current.penguinTracked && GameSession.current.sealTracked)
             {
                 StopAllCoroutines();
-                penguinInColliderActive = true;
                 happinessIncreaseSpeed = Mathf.Max(happinessIncreaseSpeed, 1.5f * GameSession.current.happinessDecayingSpeed);
-                addHappiness = StartCoroutine(AddHappiness());
+                StartCoroutine(PerformHappiness());
                 GameSession.current.penguinBusy = true;
+                interacting = true;
             }
-    }
-
-    // check in case penguin is enabled while inside the collider
-    private void OnTriggerStay(Collider other)
-    {
-        if (GameSession.current.penguin)
-            if (other.GetComponentInParent<PenguinBehavior>() == GameSession.current.penguin && !penguinInColliderActive)
-                OnTriggerEnter(other);
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (GameSession.current.penguin)
-            if (other.GetComponentInParent<PenguinBehavior>() == GameSession.current.penguin)
+        }
+        else
+        {
+            if (Vector3.Distance(transform.position, penguin.transform.position) > max_distance || !GameSession.current.penguinTracked || !GameSession.current.sealTracked)
             {
                 StopAllCoroutines();
-                penguinInColliderActive = false;
                 StartCoroutine(ReturnToPlace());
                 GameSession.current.penguinBusy = false;
+                interacting = false;
             }
+        }
 
     }
 
-    IEnumerator AddHappiness()
+    IEnumerator PerformHappiness()
     {
         float lerpParam = 0;
         Transform sealTransform = transform.GetChild(0);
@@ -63,9 +55,12 @@ public class SealBehavior : MonoBehaviour
 
         Transform penguinTransform = GameSession.current.penguin.transform;
         sealTransform.LookAt(penguinTransform);
-        float penguinWidth = penguinTransform.GetComponentInChildren<Collider>().bounds.extents.x * 2;
+        float penguinWidth = penguinTransform.GetComponentInChildren<Collider>().bounds.extents.x *  2;
 
+        Vector3 initialSealFwd = sealTransform.forward;
+        Vector3 dstSealFwd = (penguinTransform.position - sealTransform.position).normalized;
         Vector3 initialPenguinFwd = penguinTransform.forward;
+        Vector3 dstPenguinFwd = (sealTransform.position - penguinTransform.position).normalized;
 
         sealTransform.GetComponent<Animator>().SetTrigger("happiness");
         penguinTransform.GetComponent<Animator>().SetTrigger("happiness");
@@ -73,8 +68,10 @@ public class SealBehavior : MonoBehaviour
         while (true)
         {
             sealTransform.position = Vector3.Lerp(initialPos, penguinTransform.position - sealTransform.forward * penguinWidth, lerpParam);
-            penguinTransform.forward = Vector3.Lerp(initialPenguinFwd, (sealTransform.position - penguinTransform.position).normalized, 2 * lerpParam);
-            lerpParam += 1f * Time.fixedDeltaTime;
+            penguinTransform.forward = Vector3.Lerp(initialPenguinFwd, dstPenguinFwd, 2f * lerpParam);
+            //sealTransform.forward = Vector3.Lerp(initialSealFwd, dstSealFwd, lerpParam);
+            
+            lerpParam += Time.fixedDeltaTime;
 
             GameSession.current.penguin.happiness += happinessIncreaseSpeed * Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
@@ -89,15 +86,17 @@ public class SealBehavior : MonoBehaviour
         Vector3 initialPos = sealTransform.position;
         sealTransform.LookAt(transform);
         Vector3 initialPenguinFwd = penguinTransform.forward;
+        //Vector3 initialSealFwd = sealTransform.forward;
 
         sealTransform.GetComponent<Animator>().SetTrigger("happiness");
         penguinTransform.GetComponent<Animator>().SetTrigger("happiness");
 
-        while (Vector3.Distance(sealTransform.position, transform.position) > 0.01)
+        while (lerpParam <= 1f)
         {
             sealTransform.position = Vector3.Lerp(initialPos, transform.position, lerpParam);
-            penguinTransform.forward = Vector3.Lerp(initialPenguinFwd, -penguinTransform.parent.forward, 2 * lerpParam);
-            lerpParam += 1f * Time.fixedDeltaTime;
+            penguinTransform.forward = Vector3.Lerp(initialPenguinFwd, -penguinTransform.parent.forward, 2f * lerpParam);
+            //sealTransform.forward = Vector3.Lerp(initialSealFwd, -sealTransform.parent.forward, lerpParam);
+            lerpParam += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
 
