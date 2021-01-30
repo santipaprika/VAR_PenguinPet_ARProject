@@ -7,7 +7,8 @@ Basic penguin pet simulator. The user's goal is to avoid an having insufficient 
 - Hygiene
 - Happiness
   
-(Video demo available soon)
+## Demo
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/wlUmhPJWb64/0.jpg)](https://www.youtube.com/watch?v=wlUmhPJWb64)
 
 ## Environment Registration
 The registration of the environment is done via markers (stored in a custom Vuforia database). For this application, three diferent markers have been designed:
